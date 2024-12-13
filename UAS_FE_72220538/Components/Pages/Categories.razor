@@ -1,0 +1,146 @@
+﻿@page "/categories"
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+@using UAS_FE_72220538.Services
+@inject ccService ccService
+@using UAS_FE_72220538.Model
+
+<h3>Kategori</h3>
+<PageTitle>Category</PageTitle>
+
+<div style="display: flex; align-items: center; margin-bottom: 16px;">
+    <input type="text" @bind="searchTerm" @onkeydown="HandleKeyDown" placeholder="Cari berdasarkan nama kategori..."
+           style="padding: 8px; border-radius: 6px; flex-grow: 1;" />
+    <button @onclick="FindCategories" style="margin-left: 8px; background-color: blue; color: white; padding: 8px 12px; border: none; cursor: pointer; border-radius: 6px;">
+        Find
+    </button>
+</div>
+<!-- Tombol New -->
+
+<button @onclick="@(() => CreateCategory())" style="margin-bottom: 16px; background-color: green; color: white; padding: 8px 12px; border: none; cursor: pointer; border-radius: 6px;">
+    New
+</button>
+
+@if (filteredCategories == null)
+{
+    <p>Loading...</p>
+}
+else if (!filteredCategories.Any())
+{
+    <p>Tidak ada kategori yang ditemukan.</p>
+}
+else
+{
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">ID</th>
+                <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Nama</th>
+                <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Deskripsi</th>
+                <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var category in filteredCategories)
+            {
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">@category.categoryId</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">@category.name</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">@category.description</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">
+                        <button @onclick="() => EditCategory(category.categoryId)" style="margin-right: 8px; border-radius: 6px;">Edit</button>
+                        <button @onclick="() => DeleteCategory(category.categoryId)" style="background-color: red; color: white; border-radius: 6px;">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger">
+        <strong>Error:</strong> @errorMessage
+        @if (!string.IsNullOrEmpty(token))
+        {
+            <div><strong>Token:</strong> @token</div>
+        }
+    </div>
+}
+
+
+@code {
+    private List<category> categories = new();
+    private List<category> filteredCategories;
+
+    private string errorMessage = string.Empty;
+    private string token = string.Empty; // Placeholder to show the token on error
+
+    private string searchTerm = string.Empty;
+    private void CreateCategory()
+    {
+        NavigationManager.NavigateTo("/categories/new");
+    }
+    private void HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            FindCategories(); // Call FindCategories method when Enter is pressed
+        }
+
+    }
+
+    private void FindCategories()
+    {
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            filteredCategories = categories; // If no search term, show all categories
+        }
+        else
+        {
+            filteredCategories = categories
+                .Where(c => c.name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                .ToList(); // Filter categories by name
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            categories = await ccService.GetCategoriesAsync();
+            filteredCategories = categories;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+            token = await GetTokenAsync(); // Fetch token to display
+        }
+    }
+
+    private void EditCategory(int categoryId)
+    {
+        NavigationManager.NavigateTo($"/categories/{categoryId}");
+    }
+
+    private async Task DeleteCategory(int categoryId)
+    {
+        try
+        {
+            await ccService.DeleteCategoryAsync(categoryId);
+            categories = await ccService.GetCategoriesAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+            token = await GetTokenAsync(); // Fetch token to display
+        }
+    }
+
+    // Method to fetch the token from the ccService
+    private Task<string> GetTokenAsync()
+    {
+        // Assuming ccService provides the token as a public property
+        return Task.FromResult(ccService.token); // Replace with actual method if needed
+    }
+}
