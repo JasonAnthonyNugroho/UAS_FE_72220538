@@ -5,54 +5,65 @@
 @inject ccService ccService
 @using UAS_FE_72220538.Model
 
-<h3>Login</h3>
+<div class="login-container">
+    <div class="login-card">
+        <h2>Login</h2>
 
-<EditForm Model="@newLogin" OnValidSubmit="@HandleValidSubmit">
-    <div class="form-group">
-        <label for="email">Email</label>
-        <input id="email" class="form-control" type="text" @bind="@newLogin.userName" required />
-    </div>
+        <EditForm Model="@newLogin" OnValidSubmit="@HandleValidSubmit" class="login-form">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input id="email" class="form-control" type="text" @bind="@newLogin.userName" placeholder="Enter your email" required />
+            </div>
 
-    <div class="form-group">
-        <label for="password">Password</label>
-        <input id="password" class="form-control" type="password" @bind="@newLogin.password" required />
-    </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input id="password" class="form-control" type="password" @bind="@newLogin.password" placeholder="Enter your password" required />
+            </div>
 
-    <div class="form-group">
-        <button type="submit" class="btn btn-primary">Login</button>
-        <button type="button" class="btn btn-secondary">Register</button>
-    </div>
-</EditForm>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Login</button>
+                <button type="button" class="btn btn-secondary" @onclick="NavigateToRegister">Register</button>
+            </div>
+        </EditForm>
 
-@if (!string.IsNullOrEmpty(token))
-{
-    <div class="alert alert-success mt-3">
-        <strong>Login successful!</strong> Your token: @token
-    </div>
-}
+        @if (!string.IsNullOrEmpty(token))
+        {
+            <div class="alert alert-success">
+                <strong>Login successful!</strong> Welcome back!
+            </div>
+        }
 
-@if (!string.IsNullOrEmpty(errorMessage))
-{
-    <div class="alert alert-danger mt-3">
-        <strong>Error:</strong> @errorMessage
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger">
+                <strong>Error:</strong> @errorMessage
+            </div>
+        }
     </div>
-}
+</div>
 
 @code {
-    private login newLogin = new(); // New login object for binding
-    private string token; // Variable to store the token
-    private string errorMessage; // Variable to display errors
+    private login newLogin = new();
+    private string token;
+    private string errorMessage;
 
     private async Task HandleValidSubmit()
     {
         try
         {
             token = await ccService.LoginAsync(newLogin);
-
         }
         catch (Exception ex)
         {
             errorMessage = ex.Message;
         }
     }
+
+    private void NavigateToRegister()
+    {
+        NavigationManager.NavigateTo("/register");
+    }
 }
+<style>
+    
+</style>

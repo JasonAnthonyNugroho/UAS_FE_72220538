@@ -3,27 +3,16 @@
 @inject NavigationManager NavigationManager
 @inject HttpClient HttpClient
 @using UAS_FE_72220538.Model
-<h3>Daftar Course</h3>
+
+<h3>Daftar Kursus</h3>
 <PageTitle>Course</PageTitle>
-<div style="display: flex; align-items: center; margin-bottom: 16px;">
-    <input type="text" @bind="searchTerm" class="form-control" @bind="searchTerm" placeholder="Cari berdasarkan nama course..."/>
-    <button @onclick="SearchCourses" style="margin-left: 8px; background-color: blue; color: white; padding: 8px 12px; border: none; cursor: pointer; border-radius: 6px;">
-        Find
-    </button>
+
+<div class="search-bar">
+    <input type="text" @bind="searchTerm" class="search-input" placeholder="Cari berdasarkan nama kursus..." />
+    <button @onclick="SearchCourses" class="search-button">Cari</button>
 </div>
-@* <div class="mb-3 input-group"> *@
-@*     <input type="text" *@
-@*            class="form-control" *@
-@*            placeholder="Search by course name" *@
-@*            @bind="searchTerm" /> *@
-@*     <button class="btn btn-primary" @onclick="SearchCourses"> *@
-@*         Cari *@
-@*     </button> *@
-@* </div> *@
-<button @onclick="@(() => CreateCourse())"
-        style="margin-bottom: 16px; background-color: green; color: white; padding: 8px 12px; border: none; cursor: pointer; border-radius: 8px;">
-    Tambah Course
-</button>
+
+<button @onclick="@(() => CreateCourse())" class="add-course-button">Tambah Kursus</button>
 
 @if (filteredCourses == null)
 {
@@ -31,31 +20,30 @@
 }
 else if (!filteredCourses.Any())
 {
-    <p>Tidak ada course yang ditemukan.</p>
+    <p class="no-results">Tidak ada kursus yang ditemukan.</p>
 }
 else
 {
-    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px;">
+    <div class="course-container">
         @foreach (var course in filteredCourses)
         {
-            <div class="course-list">
-                <div class="card course-card">
-                    <img src="@course.imageName" alt="@course.name" class="card-img-top" />
-                    <div class="card-body">
-                        <h5 class="card-title">@course.name</h5>
-                        <p class="card-text">@course.description</p>
-                        <p><strong>Duration:</strong> @course.duration hours</p>
-                        <span class="badge bg-primary">@course.category.name</span>
-                        <div class="card-actions">
-                            <button class="btn btn-edit btn-primary" @onclick="@(() => EditCourse(course.courseId))">Edit</button>
-                            <button class="btn btn-delete btn-danger" @onclick="@(() => DeleteCourse(course.courseId))">Delete</button>
-                        </div>
+            <div class="course-card">
+                <img src="@course.imageName" alt="@course.name" class="course-image" />
+                <div class="course-details">
+                    <h4 class="course-title">@course.name</h4>
+                    <p class="course-description">@course.description</p>
+                    <p class="course-duration"><strong>Durasi:</strong> @course.duration jam</p>
+                    <span class="course-category">@course.category.name</span>
+                    <div class="course-actions">
+                        <button class="edit-button" @onclick="@(() => EditCourse(course.courseId))">Edit</button>
+                        <button class="delete-button" @onclick="@(() => DeleteCourse(course.courseId))">Hapus</button>
                     </div>
                 </div>
             </div>
         }
     </div>
 }
+
 @code {
     private List<course> courses = new(); // Original courses fetched
     private List<course> filteredCourses = new(); // Courses displayed based on search
@@ -184,36 +172,159 @@ else
 }
 
     h3 {
-        font-size: 2rem; /* Increase font size */
-        color: #333; /* Darker color for better contrast */
-        margin-bottom: 1rem; /* Space below the header */
-        text-align: center; /* Center the header */
-        font-family: 'Arial', sans-serif; /* Use a modern font */
+        font-size: 2rem;
+        color: #333;
+        text-align: center;
+        margin-bottom: 1rem;
+        font-family: 'Arial', sans-serif;
     }
 
-    .btn-new {
-        display: block; /* Make the button block level for full width */
-        width: 100%; /* Full width of the container */
-        max-width: 15rem; /* Set a maximum width for the button */
-        margin: 0 auto; /* Center the button */
-        padding: 0.75rem 1.5rem; /* Adjust padding for more space */
-        font-size: 1.2rem; /* Increase font size */
-        border-radius: 0.5rem; /* Rounded corners */
-    }
-
-    .input-group {
+    /* Search Bar */
+    .search-bar {
         display: flex;
-        align-items: center;
+        justify-content: center;
+        margin-bottom: 16px;
     }
 
-    .input-group .form-control {
-        flex: 1; /* Make input fill the remaining space */
-        margin-right: 0.5rem; /* Add spacing between input and button */
+    .search-input {
+        width: 60%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px 0 0 6px;
+        font-size: 16px;
+        outline: none;
     }
 
-    .input-group .btn {
-        height: 100%; /* Match the button's height to the input */
-        padding: 0.5rem 1rem; /* Adjust padding */
-        font-size: 1rem; /* Ensure readable text */
+    .search-button {
+        padding: 12px 20px;
+        border: none;
+        background-color: #007BFF;
+        color: white;
+        font-size: 16px;
+        border-radius: 0 6px 6px 0;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+        .search-button:hover {
+            background-color: #0056b3;
+        }
+
+    /* Add Course Button */
+    .add-course-button {
+        display: block;
+        margin: 0 auto 20px auto;
+        padding: 12px 24px;
+        background-color: #28A745;
+        color: white;
+        font-size: 16px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+        .add-course-button:hover {
+            background-color: #218838;
+        }
+
+    /* Course Container */
+    .course-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 16px;
+        padding: 16px;
+    }
+
+    /* Course Card */
+    .course-card {
+        background-color: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+    .course-image {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+    }
+
+    .course-details {
+        padding: 16px;
+    }
+
+    .course-title {
+        font-size: 1.25rem;
+        margin-bottom: 8px;
+        color: #333;
+    }
+
+    .course-description {
+        font-size: 1rem;
+        color: #666;
+        margin-bottom: 12px;
+    }
+
+    .course-duration {
+        font-size: 0.9rem;
+        color: #555;
+        margin-bottom: 8px;
+    }
+
+    .course-category {
+        display: inline-block;
+        background-color: #007BFF;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        margin-bottom: 12px;
+    }
+
+    .course-actions {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .edit-button, .delete-button {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .edit-button {
+        background-color: #ffc107;
+        color: white;
+    }
+
+        .edit-button:hover {
+            background-color: #e0a800;
+        }
+
+    .delete-button {
+        background-color: #dc3545;
+        color: white;
+    }
+
+        .delete-button:hover {
+            background-color: #c82333;
+        }
+
+    /* No Results */
+    .no-results {
+        text-align: center;
+        font-size: 1.2rem;
+        color: #777;
     }
 </style>
